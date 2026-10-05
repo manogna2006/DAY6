@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#f8efed">
+	<title>Savora — Find your next favorite</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--ink: #19251e;
+			--muted: #70796f;
+			--paper: #f8efed;
+			--white: #fffefa;
+			--line: #e4e6dc;
+			--green: #315d43;
+			--lime: #d8ed76;
+			--coral: #f1785c;
+			--shadow: 0 16px 45px rgba(27, 43, 32, .09);
+		}
+
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			background: radial-gradient(ellipse at 7% 11%, rgba(241,120,92,.12), transparent 27rem), radial-gradient(ellipse at 94% 48%, rgba(91,144,103,.11), transparent 31rem), linear-gradient(135deg, #fff5ef 0%, var(--paper) 58%, #f1f2e8 100%);
+			background-attachment: fixed;
+			color: var(--ink);
+			font-family: "DM Sans", sans-serif;
+			min-height: 100vh;
+		}
+		button, input, select { font: inherit; }
+		button { cursor: pointer; }
+		.shell { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
+		.topbar {
+			height: 78px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 1px solid var(--line);
+		}
+		.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+		.brand-mark {
+			width: 34px; height: 34px; display: grid; place-items: center;
+			background: var(--green); border-radius: 50%; color: var(--lime); font-size: 18px;
+		}
+		.brand-name { font-size: 19px; font-weight: 700; letter-spacing: .2px; }
+		.brand-name span { color: var(--green); }
+		.top-note { color: var(--muted); font-size: 13px; font-weight: 500; }
+
+		.hero {
+			position: relative;
+			overflow: hidden;
+			min-height: 290px;
+			margin: 31px 0 25px;
+			padding: 44px 50px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-radius: 8px;
+			color: #fffefa;
+			background: linear-gradient(115deg, #294f3a 0%, #315d43 55%, #52734d 100%);
+			isolation: isolate;
+			animation: hero-enter .7s cubic-bezier(.2,.7,.2,1) both;
+		}
+		.hero::before, .hero::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; }
+		.hero::before { width: 410px; height: 410px; right: 80px; top: -270px; background: rgba(216,237,118,.13); animation: drift 11s ease-in-out infinite alternate; }
+		.hero::after { width: 260px; height: 260px; right: -75px; bottom: -175px; border: 1px solid rgba(255,255,255,.22); animation: ring-drift 14s ease-in-out infinite alternate; }
+		.hero-copy { max-width: 560px; }
+		.eyebrow { color: var(--lime); font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; }
+		h1, h2, p { margin-top: 0; }
+		h1 { margin: 12px 0 12px; font: 700 43px/1.12 "Playfair Display", Georgia, serif; letter-spacing: 0; }
+		.hero-copy p { max-width: 470px; margin-bottom: 0; color: rgba(255,255,255,.76); font-size: 15px; line-height: 1.65; }
+		.hero-stamp {
+			width: 148px; height: 148px; margin-right: 60px; flex: 0 0 auto;
+			display: grid; place-items: center; border: 1px solid rgba(255,255,255,.35); border-radius: 50%;
+			color: var(--lime); font-size: 48px; transform: rotate(-12deg); animation: stamp-wander 7s ease-in-out infinite;
+		}
+
+		.search-panel {
+			display: grid;
+			grid-template-columns: minmax(250px, 1fr) 170px 170px 170px auto;
+			gap: 11px;
+			align-items: end;
+			padding: 17px;
+			background: var(--white);
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			box-shadow: 0 5px 20px rgba(27,43,32,.035);
+			transition: box-shadow .25s ease, border-color .25s ease;
+		}
+		.search-panel:hover { border-color: rgba(49,93,67,.25); box-shadow: 0 12px 30px rgba(27,43,32,.08); }
+		.field { min-width: 0; }
+		.field label { display: block; margin: 0 0 7px 2px; color: #667167; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+		.search-box { display: flex; height: 45px; align-items: center; gap: 10px; padding: 0 12px; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+		.search-box:focus-within, select:focus, .ingredient-input:focus { outline: 2px solid rgba(49,93,67,.25); border-color: var(--green); }
+		.search-box svg { color: var(--green); flex: 0 0 auto; }
+		.search-box input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 13px; }
+		select, .ingredient-input { width: 100%; height: 45px; padding: 0 11px; border: 1px solid var(--line); border-radius: 5px; background: #fff; color: var(--ink); font-size: 13px; }
+		.search-button { height: 45px; padding: 0 20px; border: 0; border-radius: 5px; background: var(--coral); color: white; font-size: 13px; font-weight: 700; transition: background .2s, transform .2s; }
+		.search-button:hover { background: #dc634a; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(220,99,74,.25); }
+		.search-button:active { transform: translateY(0) scale(.98); }
+
+		.results-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 35px 0 16px; }
+		.results-head h2 { margin-bottom: 4px; font: 700 25px/1.2 "Playfair Display", Georgia, serif; }
+		.results-head p { margin: 0; color: var(--muted); font-size: 13px; }
+		.result-count { color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
+		.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; padding-bottom: 70px; }
+		.recipe-card {
+			overflow: hidden; min-width: 0; background: var(--white); border: 1px solid rgba(49,93,67,.14); border-radius: 8px;
+			box-shadow: 0 5px 18px rgba(27,43,32,.055); cursor: pointer;
+			transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; animation: rise .35s both;
+		}
+		.recipe-card:hover { transform: translateY(-6px); border-color: rgba(49,93,67,.32); box-shadow: 0 22px 44px rgba(27,43,32,.16); }
+		.recipe-card:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+		.photo-wrap { position: relative; aspect-ratio: 1.2; overflow: hidden; background: #e7eeeb; }
+		.photo-wrap img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .45s; }
+		.recipe-card:hover .photo-wrap img { transform: scale(1.07); }
+		.video-preview { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; pointer-events: none; }
+		.area-tag { position: absolute; z-index: 2; left: 12px; bottom: 12px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.26); border-radius: 3px; background: rgba(25,37,30,.76); color: white; font-size: 10px; font-weight: 700; backdrop-filter: blur(8px); }
+		.favorite {
+			position: absolute; z-index: 2; right: 10px; top: 10px; width: 34px; height: 34px; display: grid; place-items: center;
+			border: 0; border-radius: 50%; background: rgba(255,254,250,.96); color: #59645a; font-size: 19px; line-height: 1;
+			box-shadow: 0 3px 12px rgba(18,35,25,.18); transition: transform .2s ease, color .2s ease;
+		}
+		.favorite:hover { transform: scale(1.12); }
+		.favorite.active { color: var(--coral); }
+		.card-body { min-height: 136px; display: flex; flex-direction: column; padding: 15px 16px 14px; }
+		.card-meta { min-height: 15px; display: flex; align-items: center; gap: 7px; margin-bottom: 8px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+		.card-meta::before { width: 16px; height: 2px; border-radius: 2px; background: var(--coral); content: ""; }
+		.recipe-card:nth-child(3n + 2) .card-meta::before { background: var(--green); }
+		.recipe-card:nth-child(3n) .card-meta::before { background: #c49b3f; }
+		.card-body h3 { display: -webkit-box; overflow: hidden; min-height: 44px; margin: 0 0 12px; font: 700 18px/1.24 "Playfair Display", Georgia, serif; text-overflow: ellipsis; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+		.card-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; border-top: 1px solid var(--line); padding-top: 11px; }
+		.card-bottom span { color: var(--muted); font-size: 11px; }
+		.view-button { display: inline-flex; align-items: center; gap: 5px; color: var(--green) !important; font-size: 11px !important; font-weight: 700; transition: color .2s ease, transform .2s ease; }
+		.recipe-card:hover .view-button { color: var(--coral) !important; transform: translateX(2px); }
+		.status { grid-column: 1 / -1; min-height: 190px; display: grid; place-items: center; text-align: center; color: var(--muted); }
+		.status-inner { max-width: 420px; padding: 32px; }
+		.status-icon { margin-bottom: 10px; font-size: 32px; }
+		.status h3 { margin: 0 0 6px; color: var(--ink); font: 700 20px "Playfair Display", Georgia, serif; }
+		.status p { margin: 0; font-size: 13px; line-height: 1.6; }
+		.retry-button { margin-top: 14px; padding: 9px 14px; border: 0; border-radius: 4px; background: var(--green); color: white; font-size: 12px; font-weight: 700; }
+		.spinner { width: 30px; height: 30px; border: 3px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
+
+		.modal { position: fixed; inset: 0; z-index: 10; display: none; place-items: center; padding: 20px; background: rgba(15,25,18,.62); }
+		.modal.open { display: grid; }
+		.modal-box { position: relative; width: min(780px, 100%); max-height: min(88vh, 850px); overflow: auto; border-radius: 8px; background: var(--white); animation: rise .2s both; }
+		.modal-close { position: sticky; z-index: 1; float: right; top: 12px; margin: 12px 12px -48px 0; width: 36px; height: 36px; border: 0; border-radius: 50%; background: white; color: var(--ink); font-size: 21px; box-shadow: 0 2px 12px rgba(0,0,0,.16); }
+		.modal-image { display: block; width: 100%; max-height: 360px; aspect-ratio: 2 / 1; object-fit: cover; background: #e7eadf; }
+		.modal-content { padding: 26px 32px 32px; }
+		.modal-kicker { margin-bottom: 8px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+		.modal-content h2 { margin: 0 0 18px; font: 700 30px/1.2 "Playfair Display", Georgia, serif; }
+		.modal-columns { display: grid; grid-template-columns: 220px 1fr; gap: 28px; }
+		.modal-content h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .8px; text-transform: uppercase; }
+		.ingredient-list { margin: 0; padding: 0; list-style: none; }
+		.ingredient-list li { padding: 7px 0; border-bottom: 1px solid var(--line); color: #526056; font-size: 12px; }
+		.instructions { color: #526056; font-size: 13px; line-height: 1.75; white-space: pre-line; }
+		.source-link { display: inline-block; margin-top: 8px; color: var(--green); font-size: 12px; font-weight: 700; }
+		footer { padding: 17px 0 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; text-align: center; }
+
+		@keyframes spin { to { transform: rotate(360deg); } }
+		@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+		@keyframes hero-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+		@keyframes drift { from { transform: translate(0, 0); } to { transform: translate(-18px, 14px); } }
+		@keyframes ring-drift { from { transform: translate(0, 0) rotate(0); } to { transform: translate(-12px, -10px) rotate(18deg); } }
+		@keyframes stamp-wander { 0%, 100% { transform: rotate(-12deg) translateY(0); } 50% { transform: rotate(-4deg) translateY(-6px); } }
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+		}
+		@media (max-width: 980px) {
+			.search-panel { grid-template-columns: minmax(220px, 1fr) 1fr 1fr; }
+			.search-button { grid-column: 3; }
+			.cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+			.hero-stamp { margin-right: 5px; }
+		}
+		@media (max-width: 650px) {
+			.shell { width: min(100% - 28px, 500px); }
+			.topbar { height: 64px; }
+			.top-note { font-size: 11px; }
+			.hero { min-height: 250px; margin: 18px 0; padding: 30px 24px; }
+			h1 { max-width: 380px; font-size: 34px; }
+			.hero-copy p { font-size: 13px; }
+			.hero-stamp { display: none; }
+			.search-panel { grid-template-columns: 1fr 1fr; gap: 12px; padding: 13px; }
+			.field:first-child { grid-column: 1 / -1; }
+			.search-button { grid-column: 1 / -1; }
+			.results-head { align-items: start; margin-top: 27px; }
+			.results-head h2 { font-size: 22px; }
+			.result-count { padding-top: 5px; font-size: 11px; }
+			.cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding-bottom: 45px; }
+			.card-body { padding: 11px; }
+			.card-body h3 { font-size: 15px; }
+			.card-meta { font-size: 9px; }
+			.modal-columns { grid-template-columns: 1fr; gap: 20px; }
+			.modal-content { padding: 22px; }
+			.modal-content h2 { font-size: 25px; }
+			.modal-image { aspect-ratio: 1.45; }
+		}
+		@media (max-width: 370px) {
+			.cards { grid-template-columns: 1fr; }
+			.photo-wrap { aspect-ratio: 1.6; }
+			.top-note { display: none; }
+		}
+	</style>
+</head>
+<body>
+	<div class="shell">
+		<header class="topbar">
+			<a class="brand" href="#top" aria-label="Savora home">
+				<span class="brand-mark" aria-hidden="true">✳</span>
+				<span class="brand-name">sav<span>o</span>ra</span>
+			</a>
+			<span class="top-note">A little inspiration for your next meal</span>
+		</header>
+
+		<main id="top">
+			<section class="hero" aria-labelledby="page-title">
+				<div class="hero-copy">
+					<span class="eyebrow">Good food, found</span>
+					<h1 id="page-title">Your next favorite<br>starts right here.</h1>
+					<p>Explore recipes from kitchens around the world. Search a craving, find a new favorite, and get cooking.</p>
+				</div>
+				<div class="hero-stamp" aria-hidden="true">✳</div>
+			</section>
+
+			<form class="search-panel" id="filter-form">
+				<div class="field">
+					<label for="search-input">Search recipes</label>
+					<div class="search-box">
+						<svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+						<input id="search-input" type="search" placeholder="Try “salmon”, “pasta”…" autocomplete="off">
+					</div>
+				</div>
+				<div class="field">
+					<label for="area-filter">Cuisine</label>
+					<select id="area-filter"><option value="">All cuisines</option></select>
+				</div>
+				<div class="field">
+					<label for="category-filter">Category</label>
+					<select id="category-filter"><option value="">All categories</option></select>
+				</div>
+				<div class="field">
+					<label for="ingredient-filter">Has ingredient</label>
+					<input class="ingredient-input" id="ingredient-filter" type="search" placeholder="e.g. garlic">
+				</div>
+				<button class="search-button" type="submit">Find recipes <span aria-hidden="true">→</span></button>
+			</form>
+
+			<section aria-labelledby="results-title">
+				<div class="results-head">
+					<div>
+						<h2 id="results-title">A taste of something good</h2>
+						<p id="results-subtitle">A few ideas to get you started.</p>
+					</div>
+					<span class="result-count" id="result-count"></span>
+				</div>
+				<div class="cards" id="recipe-grid" aria-live="polite"></div>
+			</section>
+		</main>
+		<footer>Recipes served with a little inspiration · Powered by TheMealDB</footer>
+	</div>
+
+	<div class="modal" id="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+		<div class="modal-box">
+			<button class="modal-close" id="modal-close" type="button" aria-label="Close recipe">×</button>
+			<img class="modal-image" id="modal-image" alt="">
+			<div class="modal-content" id="modal-content"></div>
+		</div>
+	</div>
+
+	<script>
+		const API = "https://www.themealdb.com/api/json/v1/1";
+		const grid = document.querySelector("#recipe-grid");
+		const searchInput = document.querySelector("#search-input");
+		const areaFilter = document.querySelector("#area-filter");
+		const categoryFilter = document.querySelector("#category-filter");
+		const ingredientFilter = document.querySelector("#ingredient-filter");
+		const countLabel = document.querySelector("#result-count");
+		const modal = document.querySelector("#recipe-modal");
+		const favorites = new Set(JSON.parse(localStorage.getItem("savora-favorites") || "[]"));
+		let meals = [];
+
+		function showStatus(title, message, icon = "✳", retry = false) {
+			grid.innerHTML = `<div class="status"><div class="status-inner"><div class="status-icon">${icon}</div><h3>${title}</h3><p>${message}</p>${retry ? '<button class="retry-button" type="button" id="retry-button">Try again</button>' : ""}</div></div>`;
+			countLabel.textContent = "";
+			if (retry) document.querySelector("#retry-button").addEventListener("click", () => searchMeals(searchInput.value.trim()));
+		}
+
+		async function searchMeals(term) {
+			searchInput.value = term;
+			document.querySelector("#results-title").textContent = term ? `Recipes for “${term}”` : "A taste of something good";
+			document.querySelector("#results-subtitle").textContent = term ? "Find your favorite and make it yours." : "A few ideas to get you started.";
+			grid.innerHTML = '<div class="status"><div class="spinner" role="status" aria-label="Loading recipes"></div></div>';
+			countLabel.textContent = "";
+			try {
+				const response = await fetch(`${API}/search.php?s=${encodeURIComponent(term)}`);
+				if (!response.ok) throw new Error("Recipe service unavailable");
+				const data = await response.json();
+				meals = data.meals || [];
+				fillFilters();
+				renderMeals();
+			} catch (error) {
+				showStatus("Couldn’t reach the kitchen", "Check your connection and give it another try.", "↻", true);
+			}
+		}
+
+		function fillFilters() {
+			const currentArea = areaFilter.value;
+			const currentCategory = categoryFilter.value;
+			const areas = [...new Set(meals.map(meal => meal.strArea).filter(Boolean))].sort();
+			const categories = [...new Set(meals.map(meal => meal.strCategory).filter(Boolean))].sort();
+			areaFilter.innerHTML = '<option value="">All cuisines</option>' + areas.map(area => `<option value="${escapeHtml(area)}">${escapeHtml(area)}</option>`).join("");
+			categoryFilter.innerHTML = '<option value="">All categories</option>' + categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join("");
+			if (areas.includes(currentArea)) areaFilter.value = currentArea;
+			if (categories.includes(currentCategory)) categoryFilter.value = currentCategory;
+		}
+
+		function mealIngredients(meal) {
+			return Array.from({ length: 20 }, (_, index) => meal[`strIngredient${index + 1}`]).filter(value => value && value.trim());
+		}
+
+		function renderMeals() {
+			const ingredient = ingredientFilter.value.trim().toLowerCase();
+			const filtered = meals.filter(meal => {
+				const matchesArea = !areaFilter.value || meal.strArea === areaFilter.value;
+				const matchesCategory = !categoryFilter.value || meal.strCategory === categoryFilter.value;
+				const matchesIngredient = !ingredient || mealIngredients(meal).some(item => item.toLowerCase().includes(ingredient));
+				return matchesArea && matchesCategory && matchesIngredient;
+			});
+			countLabel.textContent = `${filtered.length} ${filtered.length === 1 ? "recipe" : "recipes"}`;
+			if (!filtered.length) {
+				showStatus(meals.length ? "No recipes match those filters" : "Nothing on the menu just yet", meals.length ? "Try another cuisine, category, or ingredient." : "Try searching for a dish or ingredient to get started.");
+				countLabel.textContent = "0 recipes";
+				return;
+			}
+			grid.innerHTML = filtered.map((meal, index) => `
+					<article class="recipe-card" data-meal="${escapeHtml(meal.idMeal)}" role="link" tabindex="0" aria-label="Watch ${escapeHtml(meal.strMeal)} on YouTube" style="animation-delay:${Math.min(index * 45, 360)}ms">
+					<div class="photo-wrap">
+						<img src="${escapeHtml(meal.strMealThumb)}" alt="${escapeHtml(meal.strMeal)}" loading="lazy">
+						<span class="area-tag">${escapeHtml(meal.strArea || "World kitchen")}</span>
+						<button class="favorite ${favorites.has(meal.idMeal) ? "active" : ""}" type="button" data-favorite="${escapeHtml(meal.idMeal)}" aria-label="${favorites.has(meal.idMeal) ? "Remove from" : "Add to"} favorites" aria-pressed="${favorites.has(meal.idMeal)}">♥</button>
+					</div>
+					<div class="card-body">
+						<div class="card-meta">${escapeHtml(meal.strCategory || "Recipe")}</div>
+						<h3 title="${escapeHtml(meal.strMeal)}">${escapeHtml(meal.strMeal)}</h3>
+						<div class="card-bottom"><span>${mealIngredients(meal).length} ingredients</span><span class="view-button">Watch video <span aria-hidden="true">↗</span></span></div>
+					</div>
+				</article>`).join("");
+		}
+
+		function escapeHtml(value) {
+			return String(value || "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+		}
+
+		async function openRecipe(id) {
+			const meal = meals.find(item => item.idMeal === id);
+			if (!meal) return;
+			const image = document.querySelector("#modal-image");
+			const content = document.querySelector("#modal-content");
+			image.src = meal.strMealThumb;
+			image.alt = meal.strMeal;
+			content.innerHTML = '<p class="modal-kicker">Loading recipe…</p>';
+			modal.classList.add("open");
+			document.body.style.overflow = "hidden";
+			try {
+				const response = await fetch(`${API}/lookup.php?i=${encodeURIComponent(id)}`);
+				if (!response.ok) throw new Error("Recipe unavailable");
+				const data = await response.json();
+				const detail = data.meals && data.meals[0] || meal;
+				const ingredients = mealIngredients(detail).map((item, index) => {
+					const measure = detail[`strMeasure${index + 1}`] || "";
+					return `<li>${escapeHtml(measure)} ${escapeHtml(item)}</li>`;
+				}).join("");
+				content.innerHTML = `
+					<div class="modal-kicker">${escapeHtml(detail.strArea)} · ${escapeHtml(detail.strCategory)}</div>
+					<h2 id="modal-title">${escapeHtml(detail.strMeal)}</h2>
+					<div class="modal-columns">
+						<section><h3>What you’ll need</h3><ul class="ingredient-list">${ingredients}</ul></section>
+						<section><h3>Let’s cook</h3><div class="instructions">${escapeHtml(detail.strInstructions || "Instructions are not available for this recipe.")}</div>${detail.strSource ? `<a class="source-link" href="${escapeHtml(detail.strSource)}" target="_blank" rel="noreferrer">Original recipe ↗</a>` : ""}</section>
+					</div>`;
+			} catch (error) {
+				content.innerHTML = `<div class="modal-kicker">${escapeHtml(meal.strArea)} · ${escapeHtml(meal.strCategory)}</div><h2 id="modal-title">${escapeHtml(meal.strMeal)}</h2><p class="instructions">Recipe details couldn’t be loaded. Please close this window and try again.</p>`;
+			}
+		}
+
+		document.querySelector("#filter-form").addEventListener("submit", event => {
+			event.preventDefault();
+			searchMeals(searchInput.value.trim());
+		});
+		areaFilter.addEventListener("change", renderMeals);
+		categoryFilter.addEventListener("change", renderMeals);
+		ingredientFilter.addEventListener("input", renderMeals);
+		grid.addEventListener("click", event => {
+			const favoriteButton = event.target.closest("[data-favorite]");
+			if (favoriteButton) {
+				const id = favoriteButton.dataset.favorite;
+				if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+				localStorage.setItem("savora-favorites", JSON.stringify([...favorites]));
+				renderMeals();
+				return;
+			}
+			const card = event.target.closest(".recipe-card[data-meal]");
+			if (card) watchRecipe(card.dataset.meal);
+		});
+		grid.addEventListener("keydown", event => {
+			if (event.target.closest("button, a, input, select, textarea")) return;
+			const card = event.target.closest(".recipe-card[data-meal]");
+			if (card && (event.key === "Enter" || event.key === " ")) {
+				event.preventDefault();
+				watchRecipe(card.dataset.meal);
+			}
+		});
+		grid.addEventListener("pointerover", event => {
+			if (event.pointerType !== "mouse") return;
+			const card = event.target.closest(".recipe-card[data-meal]");
+			if (card && !card.contains(event.relatedTarget)) showVideoPreview(card);
+		});
+		grid.addEventListener("pointerout", event => {
+			const card = event.target.closest(".recipe-card[data-meal]");
+			if (card && !card.contains(event.relatedTarget)) card.querySelector(".video-preview")?.remove();
+		});
+		function showVideoPreview(card) {
+			if (card.querySelector(".video-preview")) return;
+			const meal = meals.find(item => item.idMeal === card.dataset.meal);
+			const embedUrl = meal && youtubeEmbedUrl(meal.strYoutube);
+			if (!embedUrl) return;
+			const frame = document.createElement("iframe");
+			frame.className = "video-preview";
+			frame.src = embedUrl;
+			frame.title = `${meal.strMeal} video preview`;
+			frame.tabIndex = -1;
+			frame.allow = "autoplay; encrypted-media; picture-in-picture";
+			frame.referrerPolicy = "strict-origin-when-cross-origin";
+			card.querySelector(".photo-wrap").append(frame);
+		}
+		function youtubeEmbedUrl(videoUrl) {
+			try {
+				const url = new URL(videoUrl);
+				const isYoutube = url.hostname === "youtu.be" || url.hostname === "youtube.com" || url.hostname.endsWith(".youtube.com");
+				if (!isYoutube) return "";
+				const videoId = url.hostname === "youtu.be"
+					? url.pathname.split("/").filter(Boolean)[0]
+					: url.searchParams.get("v") || url.pathname.match(/\/(?:embed|shorts)\/([^/?]+)/)?.[1];
+				if (!videoId) return "";
+				return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&mute=1&playsinline=1&controls=0&rel=0`;
+			} catch (error) {
+				return "";
+			}
+		}
+		function watchRecipe(id) {
+			const meal = meals.find(item => item.idMeal === id);
+			if (!meal) return;
+			const videoUrl = meal.strYoutube || `https://www.youtube.com/results?search_query=${encodeURIComponent(meal.strMeal + " recipe")}`;
+			window.open(videoUrl, "_blank", "noopener,noreferrer");
+		}
+		document.querySelector("#modal-close").addEventListener("click", closeModal);
+		modal.addEventListener("click", event => { if (event.target === modal) closeModal(); });
+		document.addEventListener("keydown", event => { if (event.key === "Escape" && modal.classList.contains("open")) closeModal(); });
+		function closeModal() { modal.classList.remove("open"); document.body.style.overflow = ""; }
+
+		searchMeals("chicken");
+	</script>
+</body>
+</html>
